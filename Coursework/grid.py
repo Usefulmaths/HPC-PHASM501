@@ -50,7 +50,6 @@ class Grid(object):
         self.cells = np.matrix(self.cells)
         
 
-
     def geometry(self, index):
         '''Returns a geometry object for a given cell in the grid.'''
         return Geometry(self.points, self.cells[index])
@@ -61,21 +60,19 @@ class Grid(object):
         vec_f = np.zeros((self.number_of_points, 1))
 
         for index, cell in enumerate(self.cells):
-            stiffness_local = self.geometry(index).a_ij(sigma, integration_order)
+            stiffness_local = self.geometry(index).a_element(sigma, integration_order)
+            
             for i in range(3):
                 global_i = self.geometry(index).local2global(i)
                 vec_f[global_i] += self.geometry(index).f_element(f, integration_order)[i]
                 for j in range(3):
                     global_j = self.geometry(index).local2global(j)
-
-                    matrix_a[global_i, global_j] = matrix_a[global_i, global_j] + stiffness_local[i, j]
-                #data[ind] = stiffness_local[i, j]
-                #ind += 1
+                    matrix_a[global_i, global_j] += stiffness_local[i, j]
+                
         for index, cell in enumerate(self.boundary_cells):
             for point in range(len(cell)):
                 matrix_a[cell[point], :] = 0
                 matrix_a[cell[point], cell[point]] = 1.0
                 vec_f[cell[point]] = 0
        
-
         return matrix_a, vec_f
