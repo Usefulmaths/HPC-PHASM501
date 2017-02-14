@@ -1,12 +1,15 @@
 import numpy as np
 
 def f(x, y):
-	return 10
-
-def sigma(x, y):
 	return 1
 
-def p1(index, xi, eta):
+def sigma(x, y):
+	return x
+
+def p1(index, point):
+	xi = point[0]
+	eta = point[1]
+
 	if(index == 0):
 		return 1 - xi - eta
 

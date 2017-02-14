@@ -26,6 +26,7 @@ class Grid(object):
         '''Reads through vtkDataObject and sets points and elements in the grid.'''
         self.points = np.zeros((self.number_of_points, 2))
         self.cells = []
+        self.boundary_cells = []
 
         for i in range(self.number_of_points):
             point_x, point_y, point_z = self.vtk_data.GetPoint(i)
@@ -42,35 +43,39 @@ class Grid(object):
 
             if cell_type > 3:
                 self.cells.append(points_in_cell)
+            else:
+                self.boundary_cells.append(points_in_cell)
 
-	self.points = np.matrix(self.points)
+        self.points = np.matrix(self.points)
         self.cells = np.matrix(self.cells)
+        
+
 
     def geometry(self, index):
         '''Returns a geometry object for a given cell in the grid.'''
         return Geometry(self.points, self.cells[index])
 
-    def construct_matrix_a(self):
+    def construct_system(self, f, sigma, integration_order):
         '''Returns the global matrix of the grid.'''
-	matrix_a = np.zeros((self.number_of_points, self.number_of_points))
-	vec_f = np.zeros((self.number_of_points, 1))
+        matrix_a = np.zeros((self.number_of_points, self.number_of_points))
+        vec_f = np.zeros((self.number_of_points, 1))
 
         for index, cell in enumerate(self.cells):
-	    stiffness_local = self.geometry(index).stiffness_local
+            stiffness_local = self.geometry(index).a_ij(sigma, integration_order)
             for i in range(3):
-		global_i = self.geometry(index).local2global(i)
-		vec_f[global_i] += self.geometry(index).f_element()[i]
+                global_i = self.geometry(index).local2global(i)
+                vec_f[global_i] += self.geometry(index).f_element(f, integration_order)[i]
                 for j in range(3):
                     global_j = self.geometry(index).local2global(j)
 
-	            matrix_a[global_i, global_j] += stiffness_local[i, j]
-		    #data[ind] = stiffness_local[i, j]
-		    #ind += 1
-	return matrix_a, vec_f
+                    matrix_a[global_i, global_j] = matrix_a[global_i, global_j] + stiffness_local[i, j]
+                #data[ind] = stiffness_local[i, j]
+                #ind += 1
+        for index, cell in enumerate(self.boundary_cells):
+            for point in range(len(cell)):
+                matrix_a[cell[point], :] = 0
+                matrix_a[cell[point], cell[point]] = 1.0
+                vec_f[cell[point]] = 0
+       
 
-    def construct_vec_f(self):
-	f_vec = []
-	for index, cell in enumerate(self.points):
-		global_i = self.geometry(index).local2global(i)
-		f_vec.append(self.geometry(index).f_element())
-	return f_vec
+        return matrix_a, vec_f
