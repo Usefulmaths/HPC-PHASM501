@@ -57,14 +57,14 @@ class Grid(object):
     def construct_system(self, f, sigma, integration_order):
         '''Returns the global matrix of the grid.'''
         matrix_a = np.zeros((self.number_of_points, self.number_of_points))
-        vec_f = np.zeros((self.number_of_points, 1))
+        vector_f = np.zeros((self.number_of_points, 1))
 
         for index, cell in enumerate(self.cells):
-            stiffness_local = self.geometry(index).a_element(sigma, integration_order)
-            
+            stiffness_local, f_vec = self.geometry(index).system_elements(f, sigma, integration_order)
+
             for i in range(3):
                 global_i = self.geometry(index).local2global(i)
-                vec_f[global_i] += self.geometry(index).f_element(f, integration_order)[i]
+                vector_f[global_i] += f_vec[i]
                 for j in range(3):
                     global_j = self.geometry(index).local2global(j)
                     matrix_a[global_i, global_j] += stiffness_local[i, j]
@@ -73,6 +73,6 @@ class Grid(object):
             for point in range(len(cell)):
                 matrix_a[cell[point], :] = 0
                 matrix_a[cell[point], cell[point]] = 1.0
-                vec_f[cell[point]] = 0
+                vector_f[cell[point]] = 0
        
-        return matrix_a, vec_f
+        return matrix_a, vector_f
