@@ -115,7 +115,7 @@ class Grid(object):
                 matrix_a[point, :] = 0
                 matrix_a[point, point] = 1.0
                 vector_f[point] = 0
-        print(matrix_a)
+
         return matrix_a, vector_f
 
 def chunks(array, number):
