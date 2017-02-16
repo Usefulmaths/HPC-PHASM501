@@ -2,8 +2,8 @@
 This module contains the global solver routine.
 '''
 from scipy.sparse.linalg import spsolve
-from grid import Grid
-from IO import import_vtk_file, export_vtk_file
+from .grid import Grid
+from .IO import import_vtk_file, export_vtk_file
 
 def solver(vtk_file_name, func, sigma, integration_order=4):
     '''

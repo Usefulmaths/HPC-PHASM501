@@ -4,8 +4,8 @@ Contains the Grid class.
 from multiprocessing import Process, Manager
 import numpy as np
 from scipy.sparse import lil_matrix
-from cell import Cell
-from geometry import Geometry
+from .cell import Cell
+from .geometry import Geometry
 
 class Grid(object):
     '''
@@ -71,7 +71,7 @@ class Grid(object):
                 vector_f[global_i] += f_vec[i]
                 for j in range(3):
                     global_j = self.geometry(cell_index).local2global(j)
-                    if(abs(assembly_local[i, j]) > 1e-10):
+                    if abs(assembly_local[i, j]) > 1e-10:
                         lil_matrix_a[global_i, global_j] += assembly_local[i, j]
 
         return_dict['A' + str(worker_number)] = lil_matrix_a

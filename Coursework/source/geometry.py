@@ -3,8 +3,8 @@ This module contains the Geometry class.
 '''
 import numpy as np
 from numpy.linalg import inv
-from quadrature_triangle import tri_gauss_points
-from p1_basis import p1_basis, grad_p1
+from .quadrature_triangle import tri_gauss_points
+from .p1_basis import p1_basis, grad_p1
 
 class Geometry(object):
     '''

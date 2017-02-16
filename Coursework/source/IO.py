@@ -3,6 +3,8 @@ This module deals with the importing and exporting of vtk file formats.
 Specifically, the importing of grid data and the exporting of grid solution.
 '''
 from shutil import copyfile
+
+# In pylint gives erros for not existing, but does exist.
 from vtk import vtkUnstructuredGridReader
 
 
