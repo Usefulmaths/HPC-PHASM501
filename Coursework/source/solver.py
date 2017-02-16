@@ -5,7 +5,7 @@ from scipy.sparse.linalg import spsolve
 from .grid import Grid
 from .IO import import_vtk_file, export_vtk_file
 
-def solver(vtk_file_name, func, sigma, integration_order=4):
+def solve(vtk_file_name, func, sigma, integration_order=4):
     '''
     Imports grid data from a VTK file, sets up a Grid object,
     calculates the assembly matrix and function vector,
