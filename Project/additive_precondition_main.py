@@ -22,6 +22,16 @@ regions = split_regions(dofs, positions)
 restriction_operators = construct_restrictions(dofs, regions)
 subdomain_matrices = generate_subdomain_matrices(mesh, V, dofs, regions, global_A)
 
-solution = additive_schwarz_decomposition(global_A, global_f, subdomain_matrices, restriction_operators, initial_solution)
+preconditioner = additive_schwarz_preconditioner(global_A, global_f, subdomain_matrices, restriction_operators, initial_solution)
 
-plot_mesh(solution, mesh, V)
+def callback(rk):
+	rkvalues.append(rk)
+	return rk
+
+if rank == 0:
+	rkvalues = []
+	
+	solution_pre, flag = gmres(global_A, global_f, M=preconditioner, callback=callback)
+	print("Number of iterations: " + str(len(rkvalues)))
+	plot_mesh(solution_pre, mesh, V)
+

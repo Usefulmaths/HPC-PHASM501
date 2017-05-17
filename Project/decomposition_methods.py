@@ -18,9 +18,9 @@ def split_regions(dofs, positions):
     region2 = []
 
     for dof, position in zip(dofs, positions):
-        if(position[0] <= 0.5):
+        if(position[0] <= 0.6):
             region1.append(dof)
-        if(position[0] >= 0.5):
+        if(position[0] >= 0.4):
             region2.append(dof)
 
     return [region1, region2]
@@ -63,19 +63,39 @@ def generate_subdomain_matrices(mesh, V, dofs, regions, global_matrix):
 def residual(global_matrix, rhs, approx_solution):
     return np.linalg.norm(rhs - global_matrix * approx_solution)
 
-def multiplicative_schwars_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5):
+def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50):
     number_of_subdomains = len(subdomains)
     res = 10E10
+    iter_num = 0
 
-    while(res >= convergence):
+    while(res >= convergence and iter_num <= iterations):
         print(res)
         for j in range(number_of_subdomains):
             initial_solution = initial_solution + np.dot((np.transpose(restrictions[j]) * np.linalg.inv(subdomains[j]) * restrictions[j]), (rhs - global_matrix * initial_solution))
         res = residual(global_matrix, rhs, initial_solution)
+        iter_num += 1
 
     return initial_solution
 
-def additive_schwars_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50, number_of_cores=2):
+def multiplicative_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50):
+    number_of_subdomains = len(subdomains)
+    res = 10E10
+    iter_num = 0
+
+    t1 = (restrictions[0].T * np.linalg.inv(subdomains[0]) * restrictions[0]) 
+    z = t1 * rhs
+
+    while(res >= convergence and iter_num <= iterations):
+        print(res)
+        print(iter_num)
+        for j in range(1, number_of_subdomains):
+            z = z + (restrictions[j].T * np.linalg.inv(subdomains[j]) * restrictions[j]) * (rhs - global_matrix * z)
+        res = residual(global_matrix, rhs, z)
+        iter_num += 1
+
+    return z
+
+def additive_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50, number_of_cores=2):
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -117,3 +137,39 @@ def additive_schwars_decomposition(global_matrix, rhs, subdomains, restrictions,
         res = comm.bcast(res, root=0)
 
     return initial_solution
+
+def additive_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions, initial_solution, number_of_cores=2):
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    number_of_subdomains = len(subdomains)
+
+    subdomain_pairs = [[subdomains[index], restrictions[index]] for index in range(number_of_subdomains)]
+
+    if(rank == 0):
+        subdomain_pair = subdomain_pairs
+    else:
+        subdomain_pair = []
+
+    subdomain_pair = comm.scatter(subdomain_pair, root=0)
+    subdomain_matrix = subdomain_pair[0]
+    restriction_matrix = subdomain_pair[1]
+
+    preconditer_sub = (np.transpose(restriction_matrix) * np.linalg.inv(subdomain_matrix) * restriction_matrix)
+
+    comm.Barrier()
+
+    preconditioner_parts = comm.gather(preconditer_sub, root=0)
+    if(rank == 0):
+        preconditioner = np.zeros(global_matrix.shape)
+        for preconditioner_sub in preconditioner_parts:
+            preconditioner = preconditioner + preconditioner_sub
+
+        res = residual(global_matrix, rhs, initial_solution)
+    else: 
+        preconditioner = None
+
+    preconditioner = comm.bcast(preconditioner, root=0)
+
+    return preconditioner

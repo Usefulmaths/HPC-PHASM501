@@ -18,23 +18,6 @@ regions = split_regions(dofs, positions)
 restriction_operators = construct_restrictions(dofs, regions)
 subdomain_matrices = generate_subdomain_matrices(mesh, V, dofs, regions, global_A)
 
-solution = multiplicative_schwars_decomposition(global_A, global_f, subdomain_matrices, restriction_operators, initial_solution)
+solution = multiplicative_schwarz_decomposition(global_A, global_f, subdomain_matrices, restriction_operators, initial_solution)
 
 plot_mesh(solution, mesh, V)
-
-'''
-rkvalues = []
-
-def callback(rk):
-	rkvalues.append(rk)
-	return rk
-
-u, flag = gmres(global_A, global_f, callback=callback)
-print(len(rkvalues))
-
-rkvalues = []
-u_pre, flag = gmres(global_A, global_f, M=preconditioner, callback=callback)
-
-print(len(rkvalues))
-
-'''
