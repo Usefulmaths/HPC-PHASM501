@@ -18,14 +18,14 @@ class System:
 	def __init__(self, dimension):
 		self.dimension = dimension
 
-	def create_system(self, expression, diffusion_type, grid_type='square'):
+	def create_system(self, expression, diffusion_type, mesh_file=None):
 		'''
 		Creates a matrix A, and vector b, representing the diffusion generic diffusion equation.
 		'''
-		if(grid_type == 'square'):
+		if(mesh_file == None):
 			mesh = UnitSquareMesh(self.dimension - 1, self.dimension - 1)
 		else:
-			mesh = Mesh("lom5.xml")
+			mesh = Mesh(mesh_file)
 			
 		V = FunctionSpace(mesh, 'Lagrange', 1)
 		
@@ -58,7 +58,6 @@ class System:
 			a = inner(diffusion * grad(u), grad(v)) * dx
 			L = f * v * dx
 		
-
 		A = assemble(a)
 		b = assemble(L)
 

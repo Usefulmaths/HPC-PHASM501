@@ -18,9 +18,9 @@ def split_regions(dofs, positions):
     region2 = []
 
     for dof, position in zip(dofs, positions):
-        if(position[0] <= 0.6):
+        if(position[0] <= position[1]):
             region1.append(dof)
-        if(position[0] >= 0.4):
+        if(position[0] >= position[1]):
             region2.append(dof)
 
     return [region1, region2]
@@ -63,7 +63,7 @@ def generate_subdomain_matrices(mesh, V, dofs, regions, global_matrix):
 def residual(global_matrix, rhs, approx_solution):
     return np.linalg.norm(rhs - global_matrix * approx_solution)
 
-def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50):
+def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=50):
     number_of_subdomains = len(subdomains)
     res = 10E10
     iter_num = 0
@@ -77,7 +77,7 @@ def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restric
 
     return initial_solution
 
-def multiplicative_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-5, iterations=50):
+def multiplicative_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=50):
     number_of_subdomains = len(subdomains)
     res = 10E10
     iter_num = 0

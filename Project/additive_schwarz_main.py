@@ -13,9 +13,9 @@ size = comm.Get_size()
 dimension = 31
 sys = System(dimension)
 
-global_A, global_f, mesh, V = sys.create_system(expression=Constant(1.0), diffusion_type='constant')
+global_A, global_f, mesh, V = sys.create_system(expression=Constant(1.0), diffusion_type='constant', mesh_file="lom6.xml")
 
-initial_solution = np.matrix([0 for k in range(dimension**2)]).T
+initial_solution = np.zeros(global_f.shape)
 dofs, positions = generate_dof_and_positions(V, mesh)
 regions = split_regions(dofs, positions)
 
