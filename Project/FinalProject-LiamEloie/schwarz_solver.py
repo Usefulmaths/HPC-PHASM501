@@ -10,12 +10,14 @@ import numpy as np
 from mpi4py import MPI
 
 class SchwarzSolver:
-	def __init__(self, diffusion_field, diffusion_type, dimension=None, mesh_file=None, overlap=None, method='multiplicative'):
+	def __init__(self, diffusion_field, diffusion_type, function=Constant(1.0), dimension=None, mesh_file=None, overlap=None, method='multiplicative', solver_type=None):
 		self.diffusion_field = diffusion_field
 		self.diffusion_type = diffusion_type
+		self.function = function
 		self.dimension = dimension
 		self.mesh_file = mesh_file
 		self.method = method
+		self.solver_type =  solver_type
 
 		self.overlap = overlap
 
@@ -29,7 +31,7 @@ class SchwarzSolver:
 		else:
 			system = System(self.dimension) 
 
-		self.global_A, self.global_f, self.mesh, self.V = system.create_system(expression=self.diffusion_field, diffusion_type=self.diffusion_type, mesh_file=self.mesh_file)
+		self.global_A, self.global_f, self.mesh, self.V = system.create_system(expression=self.diffusion_field, diffusion_type=self.diffusion_type, function=self.function, mesh_file=self.mesh_file)
 
 		self.initial_solution = np.zeros(self.global_f.shape)
 
@@ -54,7 +56,7 @@ class SchwarzSolver:
 
 		if(self.method == 'multiplicative'):
 			if(rank == 0):
-				solution, residuals = multiplicative_schwarz_decomposition(self.global_A, self.global_f, self.subdomain_matrices, self.restriction_operators, self.initial_solution, convergence, iterations)
+				solution, residuals = multiplicative_schwarz_decomposition(self.global_A, self.global_f, self.subdomain_matrices, self.restriction_operators, self.initial_solution, convergence, iterations, self.solver_type)
 				return solution, residuals
 			else:
 				return None, None

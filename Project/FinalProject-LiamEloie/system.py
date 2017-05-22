@@ -18,7 +18,7 @@ class System:
 	def __init__(self, dimension):
 		self.dimension = dimension
 
-	def create_system(self, expression, diffusion_type, mesh_file=None):
+	def create_system(self, expression, diffusion_type, function, mesh_file=None):
 		'''
 		Creates a matrix A, and vector b, representing the diffusion generic diffusion equation.
 		'''
@@ -54,9 +54,8 @@ class System:
 		elif(diffusion_type is 'smooth' or diffusion_type is 'constant' or diffusion_type is 'anisotropic'):
 			diffusion = expression
 
-			f = Constant(1.0)
 			a = inner(diffusion * grad(u), grad(v)) * dx
-			L = f * v * dx
+			L = function * v * dx
 		
 		A = assemble(a)
 		b = assemble(L)

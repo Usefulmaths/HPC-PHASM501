@@ -11,6 +11,9 @@ def mesh2triang(mesh):
 
 
 def plot_mesh(solution, mesh, V):
+	'''
+	Plots solution of diffusion equation.
+	'''
 	j = Function(V)
 	j.vector()[:] = solution
 	C = j.compute_vertex_values(mesh)

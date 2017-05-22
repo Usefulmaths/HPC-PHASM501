@@ -1,6 +1,10 @@
 import numpy as np
 from dolfin import *
 
+'''
+Class for random diffusion (only square grids)
+'''
+
 class RandomDiffusionField(Expression):
     def __init__(self, m, n, element):
 

@@ -8,7 +8,6 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-
 ########################
 # Pure Schwarz Example #
 ########################
@@ -22,7 +21,8 @@ diffusion_expression = Constant(1.0)
 mesh_file = "meshes/holey_square.xml"
 
 '''Instantiate SchwarzSolver class'''
-solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative')
+solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative', solver_type=None)
+#solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative', solver_type=None)
 
 '''Set up the solver system'''
 solver.set_up_system(number_of_partitions)
@@ -34,6 +34,7 @@ if(rank == 0):
 	'''Plot the solution'''
 	plot_mesh(solution, solver.mesh, solver.V)
 
+
 #####################################
 # Precondition with Schwarz Example #
 #####################################
@@ -43,11 +44,12 @@ number_of_partitions = 4
 
 diffusion_type = 'constant'
 diffusion_expression = Constant(1.0)
+function_rhs = Constant(1.0)
 
-mesh_file = "meshes/holey_square.xml"
+mesh_file = "meshes/holey_square_IV.xml"
 
 '''Instantiate SchwarzSolver class'''
-solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative')
+solver = SchwarzSolver(diffusion_expression, diffusion_type, function=function_rhs, mesh_file=mesh_file, method='multiplicative')
 
 '''Set up the solver system'''
 solver.set_up_system(number_of_partitions)

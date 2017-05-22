@@ -8,6 +8,9 @@ import networkx as nx
 import metis
 
 def adjacency_matrix(global_A, mesh):
+	'''
+	Calculates the adjacency matrix for a given mesh
+	'''
 	adj_matrix = np.zeros(global_A.shape)
 
 	for cell in mesh.cells():
@@ -44,6 +47,10 @@ def adjacency_matrix(global_A, mesh):
 	return adj_matrix
 
 def non_overlapping_partition(mesh, global_A, nparts, V):
+	'''
+	Uses metis to calculate non-overlapping partitions
+	for a grid.
+	'''
 	adj_matrix = adjacency_matrix(global_A, mesh)
 	G = nx.from_numpy_matrix(adj_matrix)
 	partitions = metis.part_graph(G, nparts=nparts)[1]

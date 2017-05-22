@@ -2,12 +2,16 @@ from dolfin import *
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse.linalg import gmres, cg, minres
+from pyamg import ruge_stuben_solver
+
 from graph_mesh import *
-
 from partition import *
-
 from mpi4py import MPI
 
+'''
+Methods necessary to perform Schwarz 
+decomposition solvers and preconditioners
+'''
 def generate_dof_and_positions(V, mesh):
     '''
     Generates the degrees of freedom for given mesh.
@@ -64,7 +68,10 @@ def residual(global_matrix, rhs, approx_solution):
     '''
     return np.linalg.norm(rhs - global_matrix * approx_solution)
 
-def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=5000):
+def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=5000, solver_type=None):
+    '''
+    Multiplicative schwarz decomposition solver
+    '''
     number_of_subdomains = len(subdomains)
     res = 10E10
     iter_num = 0
@@ -72,17 +79,32 @@ def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restric
 
     while(res >= convergence and iter_num <= iterations):
         temp = np.zeros(rhs.shape)
-        for j in range(number_of_subdomains):
-            
-            subdomain_f = np.matrix(restrictions[j]) * np.matrix(rhs)
-            subdomain_initial_solution = np.matrix(restrictions[j]) * np.matrix(initial_solution)
 
-            subdomain_solution, _ = gmres(np.matrix(subdomains[j]), np.matrix(subdomain_f), x0=np.matrix(subdomain_initial_solution), maxiter=1)
-            subdomain_solution = np.matrix(subdomain_solution).T
+        updated_solution= np.zeros(initial_solution.shape)
+
+        for j in range(number_of_subdomains):
+            # Map global initial solution to local initial solution.
+            local_initial_solution = restrictions[j] * np.matrix(initial_solution)
+
+            # Map global rhs to local rhs initial solution.
+            local_rhs = restrictions[j] * np.matrix(rhs)
+
+            if(solver_type == None):
+                initial_solution = initial_solution + np.dot((np.transpose(restrictions[j]) * np.linalg.inv(subdomains[j]) * restrictions[j]), (rhs - global_matrix * initial_solution))
+            else:
+                if(solver_type == "gmres"):
+                    solution, _ = gmres(subdomains[j], local_rhs, x0=local_initial_solution)
+                elif(solver_type == "cg"):
+                    solution, _ = cg(subdomains[j], local_rhs, x0=local_initial_solution)
+                elif(solver_type == "minres"):
+                    solution, _ = minres(subdomains[j], local_rhs, x0=local_initial_solution)
+                elif(solver_type == "amg"):
+                    solution = ruge_stuben_solver(subdomains[j]).solve(local_rhs, x0=local_initial_solution)
+
+                updated_solution = updated_solution + restrictions[j].T * np.matrix(solution).T
+                
+                initial_solution = updated_solution.copy()
         
-            initial_solution = initial_solution + restrictions[j].T * subdomain_solution + restrictions[j].T * np.linalg.inv(subdomains[j]) * restrictions[j] * (rhs - global_matrix * restrictions[j].T * subdomain_solution)
-               
-            #initial_solution = initial_solution + np.dot((np.transpose(restrictions[j]) * np.linalg.inv(subdomains[j]) * restrictions[j]), (rhs - global_matrix * initial_solution))
         res = residual(global_matrix, rhs, initial_solution)
 
         residual_list.append(res)
@@ -91,6 +113,9 @@ def multiplicative_schwarz_decomposition(global_matrix, rhs, subdomains, restric
     return initial_solution, residual_list
 
 def multiplicative_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions):
+    '''
+    Multiplicative schwarz preconditioner
+    '''
     number_of_subdomains = len(subdomains)
     m_i = np.zeros(global_matrix.shape)
 
@@ -100,7 +125,10 @@ def multiplicative_schwarz_preconditioner(global_matrix, rhs, subdomains, restri
 
     return m_i
 
-def additive_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=50, number_of_cores=2):
+def additive_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions, initial_solution, convergence=10**-10, iterations=50):
+    '''
+    Additive schwarz decompositioner solver
+    '''
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -150,12 +178,8 @@ def additive_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions,
         initial_solution = comm.bcast(initial_solution, root=0)
         res = comm.bcast(res, root=0)
 
-        #print("rank", rank, iter_num)
         if rank == 0:
-            #print(res)
             iter_num += 1
-            if iter_num % 100:
-                print(iter_num)
         else:
             residual_list = None
             iter_num = None
@@ -167,6 +191,9 @@ def additive_schwarz_decomposition(global_matrix, rhs, subdomains, restrictions,
     return initial_solution, residual_list
 
 def additive_schwarz_preconditioner(global_matrix, rhs, subdomains, restrictions, initial_solution, number_of_cores=2):
+    '''
+    Additive schwarz preconditioner
+    '''
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
