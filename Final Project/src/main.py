@@ -18,11 +18,10 @@ number_of_partitions = 4
 diffusion_type = 'constant'
 diffusion_expression = Constant(1.0)
 
-mesh_file = "meshes/holey_square.xml"
+mesh_file = "../meshes/holey_square.xml"
 
 '''Instantiate SchwarzSolver class'''
 solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative', solver_type=None)
-#solver = SchwarzSolver(diffusion_expression, diffusion_type, mesh_file=mesh_file, method='multiplicative', solver_type=None)
 
 '''Set up the solver system'''
 solver.set_up_system(number_of_partitions)
@@ -46,7 +45,7 @@ diffusion_type = 'constant'
 diffusion_expression = Constant(1.0)
 function_rhs = Constant(1.0)
 
-mesh_file = "meshes/holey_square_IV.xml"
+mesh_file = "../meshes/holey_square_IV.xml"
 
 '''Instantiate SchwarzSolver class'''
 solver = SchwarzSolver(diffusion_expression, diffusion_type, function=function_rhs, mesh_file=mesh_file, method='multiplicative')

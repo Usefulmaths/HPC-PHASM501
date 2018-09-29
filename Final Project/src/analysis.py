@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-data_file_names = ['data/square_dim5_partitions.txt', 'data/square_dim10_partitions.txt', 'data/square_dim20_partitions.txt', 'data/square_dim30_partitions.txt']
+data_file_names = ['../data/square_dim5_partitions.txt', '../data/square_dim10_partitions.txt', '../data/square_dim20_partitions.txt', '../data/square_dim30_partitions.txt']
 names = ["5", "10", "20", "30"]
 
 for index, file_name in enumerate(data_file_names):
@@ -26,7 +26,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Iterations")
 plt.show()
 
-data_file_names = ['data/square_dim5_partitions.txt', 'data/square_dim10_partitions.txt', 'data/square_dim20_partitions.txt', 'data/square_dim30_partitions.txt']
+data_file_names = ['../data/square_dim5_partitions.txt', '../data/square_dim10_partitions.txt', '../data/square_dim20_partitions.txt', '../data/square_dim30_partitions.txt']
 names = ["5", "10", "20", "30"]
 
 for index, file_name in enumerate(data_file_names):
@@ -45,7 +45,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Time (s)")
 plt.show()
 
-data_file_names = ['data/additive_square_dim5_partitions_proc1.txt', 'data/additive_square_dim10_partitions_proc1.txt', 'data/additive_square_dim20_partitions_proc1.txt', 'data/additive_square_dim30_partitions_proc1.txt']
+data_file_names = ['../data/additive_square_dim5_partitions_proc1.txt', '../data/additive_square_dim10_partitions_proc1.txt', '../data/additive_square_dim20_partitions_proc1.txt', '../data/additive_square_dim30_partitions_proc1.txt']
 names = ["5", "10", "20", "30"]
 
 for index, file_name in enumerate(data_file_names):
@@ -64,7 +64,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Iterations")
 plt.show()
 
-data_file_names = ['data/additive_square_dim5_partitions_proc1.txt', 'data/additive_square_dim10_partitions_proc1.txt', 'data/additive_square_dim20_partitions_proc1.txt', 'data/additive_square_dim30_partitions_proc1.txt']
+data_file_names = ['../data/additive_square_dim5_partitions_proc1.txt', '../data/additive_square_dim10_partitions_proc1.txt', '../data/additive_square_dim20_partitions_proc1.txt', '../data/additive_square_dim30_partitions_proc1.txt']
 names = ["5", "10", "20", "30"]
 
 for index, file_name in enumerate(data_file_names):
@@ -83,7 +83,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Time (s)")
 plt.show()
 
-data_file_name = 'data/multiplicative_square_dim30_overlap.txt'
+data_file_name = '../data/multiplicative_square_dim30_overlap.txt'
 
 df = pd.read_csv(data_file_name, names=['overlap', 'residual', 'time'])
 print(df)
@@ -109,7 +109,7 @@ plt.ylabel('Time (s)')
 plt.title('Multiplicative Schwarz \n Time curve for different sized overlaps')
 plt.show()
 
-data_file_name = 'data/additive_square_dim30_overlap.txt'
+data_file_name = '../data/additive_square_dim30_overlap.txt'
 
 df = pd.read_csv(data_file_name, names=['overlap', 'residual', 'time'])
 overlap = df['overlap'].round(2)
@@ -128,7 +128,7 @@ plt.title("Additive Schwarz \n Residual Curves for different sized overlaps")
 plt.legend(title="Overlap Percentage")
 plt.show()
 
-data_file_names = ["data/additive_square_dim5_partitions_processor_1.txt", "data/additive_square_dim5_partitions_processor_2.txt"]
+data_file_names = ["../data/additive_square_dim5_partitions_processor_1.txt", "../data/additive_square_dim5_partitions_processor_2.txt"]
 label_names = ["Non-Parallel (1 core)", "Parallel (2 cores)"]
 times = []
 for index, data_file in enumerate(data_file_names):
@@ -148,12 +148,12 @@ quit()
 
 
 
-data_file_names = ["data/additive_precon_residuals", "data/multi_precon_residuals", "data/additive_square_dim50_partitions_processor_2.txt"]
+data_file_names = ["../data/additive_precon_residuals", "../data/multi_precon_residuals", "../data/additive_square_dim50_partitions_processor_2.txt"]
 
-df1 = pd.read_csv("data/additive_precon_residuals", names=["precon", "noncon"])
-df2 = pd.read_csv("data/multi_precon_residuals", names=["precon"])
-df3 = pd.read_csv("data/additive_square_dim50_partitions_processor_2.txt", names=["residuals", "time"])
-df4 = pd.read_csv("data/square_dim50_partitions.txt", names=["residuals", "time"])
+df1 = pd.read_csv("../data/additive_precon_residuals", names=["precon", "noncon"])
+df2 = pd.read_csv("../data/multi_precon_residuals", names=["precon"])
+df3 = pd.read_csv("../data/additive_square_dim50_partitions_processor_2.txt", names=["residuals", "time"])
+df4 = pd.read_csv("../data/square_dim50_partitions.txt", names=["residuals", "time"])
 
 add_noncon_res = str(df1["noncon"][0]).split("@")
 add_noncon_res = [float(res) for res in add_noncon_res]
@@ -189,7 +189,7 @@ quit()
 
 
 
-data_file_names = ['data/multi_precon_residuals_partitionscircle_triangle', 'data/multi_precon_residuals_partitionsl_mesh', 'data/multi_precon_residuals_partitionsholey_square', 'data/multi_precon_residuals_partitionstriangle']
+data_file_names = ['../data/multi_precon_residuals_partitionscircle_triangle', '../data/multi_precon_residuals_partitionsl_mesh', '../data/multi_precon_residuals_partitionsholey_square', '../data/multi_precon_residuals_partitionstriangle']
 names = ["Circle triangle", "Holey square", "L shape", "Triangley square"]
 
 for index, file_name in enumerate(data_file_names):
@@ -207,7 +207,7 @@ plt.ylabel("Iterations")
 plt.show()
 
 
-data_file_names = ['data/additive_precon_residuals_partitionscircle_triangle', 'data/additive_precon_residuals_partitionsl_mesh', 'data/additive_precon_residuals_partitionsholey_square', 'data/additive_precon_residuals_partitionstriangle']
+data_file_names = ['../data/additive_precon_residuals_partitionscircle_triangle', '../data/additive_precon_residuals_partitionsl_mesh', '../data/additive_precon_residuals_partitionsholey_square', '../data/additive_precon_residuals_partitionstriangle']
 names = ["Circle triangle", "Holey square", "L shape", "Triangley square"]
 
 for index, file_name in enumerate(data_file_names):
@@ -224,7 +224,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Iterations")
 plt.show()
 
-data_file_names = ['data/multi_precon_residuals_overlap_constant', 'data/multi_precon_residuals_overlap_random']
+data_file_names = ['../data/multi_precon_residuals_overlap_constant', '../data/multi_precon_residuals_overlap_random']
 names = ["Constant", "Random"]
 
 for index, file_name in enumerate(data_file_names):
@@ -241,7 +241,7 @@ plt.xlabel('Overlap Size')
 plt.ylabel("Iterations")
 plt.show()
 
-data_file_names = ['data/multi_solver_res_time_partholey_square', 'data/multi_solver_res_time_partl_mesh', 'data/multi_solver_res_time_parttriangle']
+data_file_names = ['../data/multi_solver_res_time_partholey_square', '../data/multi_solver_res_time_partl_mesh', '../data/multi_solver_res_time_parttriangle']
 names = ["Holey square", "L shape", "Triangley square"]
 
 for index, file_name in enumerate(data_file_names):
@@ -273,7 +273,7 @@ plt.xlabel('Number of Partitions')
 plt.ylabel("Time")
 plt.show()
 
-data_file_names = ['data/additive_schwarz_solve_holey_square.txt', 'data/additive_schwarz_solve_l_mesh.txt', 'data/additive_schwarz_solve_triangle.txt']
+data_file_names = ['../data/additive_schwarz_solve_holey_square.txt', '../data/additive_schwarz_solve_l_mesh.txt', '../data/additive_schwarz_solve_triangle.txt']
 names = ["Holey square", "L mesh", "Triangle"]
 
 for index, file_name in enumerate(data_file_names):
